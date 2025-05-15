@@ -5,6 +5,10 @@ local soldier = myself()
 local ai = soldier.getAiParams()
 
 --Const declarations
+local MIN_DISTANCE = 20    -- Minimum distance for max accuracy (meters)
+local MAX_DISTANCE = 400   -- Distance where accuracy reaches minimum
+local CLOSE_SPREAD = 0.8   -- Spread multiplier at min_distance (more accurate)
+local FAR_SPREAD = 2.5     -- Spread multiplier at max_distance (less accurate)
 local UPDATE_INTERVAL = 1  -- Seconds between accuracy checks
 local ALERT_DURATION = 30  -- Seconds to keep AI alert
 
