@@ -46,7 +46,8 @@ while true do
                         local base_spread = weapon:getBaseSpread()
                         weapon:setSpread(base_spread * (spread_multiplier - 1))  -- Additive to base spread
                     end
-                end              
+                end
+                
             end
         end
     end
