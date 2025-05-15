@@ -1,0 +1,65 @@
+--test AI
+
+--set current soldier
+local soldier = myself()
+local ai = soldier.getAiParams()
+
+--Const declarations
+local MIN_DISTANCE = 20    -- Minimum distance for max accuracy (meters)
+local MAX_DISTANCE = 400   -- Distance where accuracy reaches minimum
+local CLOSE_SPREAD = 0.8   -- Spread multiplier at min_distance (more accurate)
+local FAR_SPREAD = 2.5     -- Spread multiplier at max_distance (less accurate)
+local UPDATE_INTERVAL = 1  -- Seconds between accuracy checks
+local BEHAVIOR_INTERVAL = 10 -- Seconds between behavior checks
+local ALERT_DURATION = 30  -- Seconds to keep AI alert
+
+
+local c = BEHAVIOR_INTERVAL --Counter to keep track of behavior checks
+
+while true do
+    sleep(UPDATE_INTERVAL)
+	
+	--Check if soldier is dead
+	if not soldier.isAlive() then
+		break
+    
+    --Check if soldier is in a Vehicle or the Player
+    elseif not soldier.isInVehicle() and not soldier.isPlayer() then
+	
+		local target = soldier:getTarget()
+		if target then
+			-- Calculate distance to target
+			local soldier_pos = soldier:getPosition()
+			local target_pos = target:getPosition()
+			local dist = distance(soldier_pos, target_pos)
+			
+			-- Calculate spread multiplier
+			local t = math.min(math.max((dist - min_distance) / (max_distance - min_distance), 0), 1)
+			local spread_multiplier = close_spread + t * (far_spread - close_spread)
+			
+			-- Apply to current weapon
+			local weapon = soldier:getCurrentWeapon()
+			if weapon then
+				local base_spread = weapon:getBaseSpread()
+				weapon:setSpread(base_spread * (spread_multiplier - 1))  -- Additive to base spread
+			end
+		end
+		
+		-- Keep AI in alert state
+		soldier.alertFor(ALERT_DURATION)
+		
+	end
+
+	if c == BEHAVIOR_INTERVAL then
+		-- Configure cautious behavior parameters
+		ai.allowFindCoverWhenSuppressed(true)
+		ai.allowChangePose(true)
+		ai.allowCheckForEnemies(true)
+		ai.allowFollowOrders(true)
+		ai.allowMovements(true)
+		soldier.alertFor(ALERT_DURATION)
+		c = 0
+	end
+
+	c = c + 1
+end
